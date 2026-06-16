@@ -43,11 +43,11 @@ public class UsuarioRestController {
     }
 
     @GetMapping("/byRol")
-    public ResponseEntity getAllAgentes() {
+    public ResponseEntity getByRol(@RequestParam("idRol") int idRol) {
         Result<Usuario> result = new Result();
 
         try {
-            result = usuarioDAO.getAllAgentes();
+            result = usuarioDAO.getByRol(idRol);
             if (result.correct) {
                 return ResponseEntity.ok().body(result);
             } else {

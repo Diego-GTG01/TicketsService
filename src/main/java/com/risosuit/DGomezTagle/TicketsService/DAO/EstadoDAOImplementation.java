@@ -45,4 +45,33 @@ public class EstadoDAOImplementation implements IEstado {
         return result;
     }
 
+    @Override
+    public Result<EstadoTicket> getByName(String nombre) {
+
+        Result<EstadoTicket> result = new Result<EstadoTicket>();
+        try {
+            TypedQuery<EstadoTicket> query = entityManager.createQuery("From EstadoTicket WHERE nombre = :nombre",
+                    EstadoTicket.class);
+            query.setParameter("nombre", nombre);
+            EstadoTicket estado = query.getSingleResult();
+            if (estado == null) {
+                result.correct = false;
+                result.message = "No hay prioridades";
+
+            } else {
+                result.correct = true;
+                result.message = "Exito obteniendo prioridades";
+                result.object = estado;
+
+            }
+
+        } catch (Exception ex) {
+            result.correct = false;
+            result.message = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+
+        return result;
+    }
+
 }
