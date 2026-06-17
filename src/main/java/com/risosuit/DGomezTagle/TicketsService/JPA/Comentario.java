@@ -15,17 +15,17 @@ import jakarta.persistence.OneToMany;
 public class Comentario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idComentario")
+    @Column(name = "idcomentario")
     private long idComentario;
     @ManyToOne
     @JoinColumn(name = "idticket")
-    private Ticket tiket;
+    private Ticket ticket;
     @ManyToOne
-    @JoinColumn(name = "idUsuario")
+    @JoinColumn(name = "idusuario")
     private Usuario usuario;
-    @Column(name = "name")
+    @Column(name = "mensaje")
     private String mensaje;
-    @Column(name = "descripcion")
+    @Column(name = "fecha")
     private Date Fecha;
 
     public long getIdComentario() {
@@ -37,11 +37,11 @@ public class Comentario {
     }
 
     public Ticket getTiket() {
-        return this.tiket;
+        return this.ticket;
     }
 
-    public void setTiket(Ticket tiket) {
-        this.tiket = tiket;
+    public void setTiket(Ticket ticket) {
+        this.ticket = ticket;
     }
 
     public Usuario getUsuario() {
