@@ -18,7 +18,7 @@ public class Historial {
     private int idHistorial;
     @ManyToOne
     @JoinColumn(name= "idticket")
-    private Ticket tiket;
+    private Ticket ticket;
     @ManyToOne
     @JoinColumn(name="idestadoanterior")
     private EstadoTicket estadoAnterior;
@@ -26,7 +26,7 @@ public class Historial {
     @JoinColumn(name="idestadoactual")
     private EstadoTicket estadoActual;
     @ManyToOne
-    @JoinColumn(name="idUsuario")
+    @JoinColumn(name="idusuario")
     private Usuario usuario;
     @Column(name="fechaactualizacion")
     private Date fechaActualizaciion;
@@ -39,12 +39,12 @@ public class Historial {
         this.idHistorial = idHistorial;
     }
 
-    public Ticket getTiket() {
-        return this.tiket;
+    public Ticket getticket() {
+        return this.ticket;
     }
 
-    public void setTiket(Ticket tiket) {
-        this.tiket = tiket;
+    public void setticket(Ticket ticket) {
+        this.ticket = ticket;
     }
 
     public EstadoTicket getEstadoAnterior() {

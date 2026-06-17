@@ -1,5 +1,6 @@
 package com.risosuit.DGomezTagle.TicketsService.DAO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,8 @@ public class ComentarioDAOImplementation implements IComentario {
 
         Result<Comentario> result = new Result<Comentario>();
         try {
-            TypedQuery<Comentario> query = entityManager.createQuery("From Comentario c WHERE c.ticket.idTicket = :idTicket",
+            TypedQuery<Comentario> query = entityManager.createQuery(
+                    "From Comentario c WHERE c.ticket.idTicket = :idTicket",
                     Comentario.class);
             query.setParameter("idTicket", idTicket);
             List<Comentario> estado = query.getResultList();
@@ -34,7 +36,7 @@ public class ComentarioDAOImplementation implements IComentario {
             } else {
                 result.correct = true;
                 result.message = "Exito obteniendo prioridades";
-                result.object = estado;
+                result.objects = new ArrayList<>(estado);
 
             }
 
