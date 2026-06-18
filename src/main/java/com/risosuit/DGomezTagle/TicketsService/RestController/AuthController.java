@@ -52,7 +52,7 @@ public class AuthController {
             result.correct = true;
             result.message = "Login exitoso";
             result.object = new LoginResponse(token, username, rol);
-
+                
             return ResponseEntity.ok(result);
 
         } catch (Exception ex) {
