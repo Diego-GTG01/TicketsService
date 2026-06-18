@@ -11,6 +11,7 @@ import com.risosuit.DGomezTagle.TicketsService.DTO.UsuarioDTO;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Usuario;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
 import com.risosuit.DGomezTagle.TicketsService.RestController.TicketsRestController;
@@ -19,6 +20,7 @@ import com.risosuit.DGomezTagle.TicketsService.RestController.TicketsRestControl
 public class UsuarioDAOImplementation implements IUsuario {
 
     @Autowired
+    @PersistenceContext
     private EntityManager entityManager;
 
     @Override

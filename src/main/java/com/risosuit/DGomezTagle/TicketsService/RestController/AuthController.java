@@ -5,48 +5,63 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.web.bind.annotation.*;
 
-import com.risosuit.DGomezTagle.TicketsService.Components.JwtUtil;
 import com.risosuit.DGomezTagle.TicketsService.DTO.LoginRequest;
 import com.risosuit.DGomezTagle.TicketsService.DTO.LoginResponse;
-
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
+import com.risosuit.DGomezTagle.TicketsService.Services.JwtService;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    private JwtUtil jwtUtil;
-
-    AuthController(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
+    private JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(
+    public ResponseEntity<Result<LoginResponse>> login(
             @RequestBody LoginRequest request) {
 
-        Authentication authentication =
-                authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                request.getUsername(),
-                                request.getPassword()
-                        )
-                );
+        Result<LoginResponse> result = new Result<>();
 
-        String token =
-                jwtUtil.generateToken(
-                        request.getUsername()
-                );
+        try {
 
-        return ResponseEntity.ok(
-                new LoginResponse(token)
-        );
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()));
+
+            authentication.getAuthorities();
+
+            String token = jwtService.generateToken(
+                    authentication.getName());
+            String username = authentication.getName();
+            String rol = authentication.getAuthorities()
+                    .stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .filter(auth -> auth.startsWith("ROLE_"))
+                    .map(auth -> auth.replace("ROLE_", ""))
+                    .findFirst()
+                    .orElse("");
+
+            result.correct = true;
+            result.message = "Login exitoso";
+            result.object = new LoginResponse(token, username, rol);
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception ex) {
+
+            result.correct = false;
+            result.message = "Usuario o contraseña incorrectos";
+            result.ex = ex;
+
+            return ResponseEntity.badRequest().body(result);
+        }
     }
 }
