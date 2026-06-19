@@ -5,4 +5,5 @@ import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 public interface IEstado {
     Result getAll();
     Result getByName(String nombre);
+    
 }

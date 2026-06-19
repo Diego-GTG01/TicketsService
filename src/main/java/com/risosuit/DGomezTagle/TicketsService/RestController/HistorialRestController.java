@@ -12,6 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @RequestMapping("Historial")
@@ -30,6 +34,28 @@ public class HistorialRestController {
 
             } else {
                 return ResponseEntity.badRequest().body(result);
+            }
+        } catch (Exception ex) {
+            result.correct = false;
+            result.message = ex.getLocalizedMessage();
+            result.ex = ex;
+            return ResponseEntity.internalServerError().body(result);
+        }
+
+    }
+
+    @PostMapping
+    public ResponseEntity<Result<Historial>> addHistorial(@RequestBody Historial historial) {
+        Result<Historial> result = new Result<Historial>();
+
+        try {
+            result = historialDAO.updateEstadoTicket(historial);
+            if (result.correct) {
+
+                return ResponseEntity.ok().body(result);
+            } else {
+                
+            return ResponseEntity.badRequest().body (result);
             }
         } catch (Exception ex) {
             result.correct = false;

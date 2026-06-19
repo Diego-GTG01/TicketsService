@@ -5,6 +5,7 @@ public class LoginResponse {
     private String token;
     private String username;
     private String rol;
+    private Long idUsuario;
 
     public LoginResponse() {
     }
@@ -19,6 +20,12 @@ public class LoginResponse {
         this.rol = rol;
     }
 
+    public LoginResponse(String token, String username, String rol, Long idUsuario) {
+        this.token = token;
+        this.username = username;
+        this.rol = rol;
+        this.idUsuario = idUsuario;
+    }
 
     public String getToken() {
         return token;
@@ -44,5 +51,12 @@ public class LoginResponse {
         this.rol = rol;
     }
 
+    public Long getIdUsuario() {
+        return this.idUsuario;
+    }
+
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
+    }
 
 }

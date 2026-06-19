@@ -10,26 +10,29 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+
 @Entity
 public class Historial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="idhistorial")
+    @Column(name = "idhistorial")
     private int idHistorial;
     @ManyToOne
-    @JoinColumn(name= "idticket")
+    @JoinColumn(name = "idticket")
     private Ticket ticket;
     @ManyToOne
-    @JoinColumn(name="idestadoanterior")
+    @JoinColumn(name = "idestadoanterior")
     private EstadoTicket estadoAnterior;
     @ManyToOne
-    @JoinColumn(name="idestadoactual")
+    @JoinColumn(name = "idestadoactual")
     private EstadoTicket estadoActual;
     @ManyToOne
-    @JoinColumn(name="idusuario")
+    @JoinColumn(name = "idusuario")
     private Usuario usuario;
-    @Column(name="fechaactualizacion")
+    @Column(name = "fechaactualizacion")
     private Date fechaActualizaciion;
+    @Column(name= "descripcioncambio")
+    private String descripcionCambio;
 
     public int getIdHistorial() {
         return this.idHistorial;
@@ -78,5 +81,23 @@ public class Historial {
     public void setFechaActualizaciion(Date fechaActualizaciion) {
         this.fechaActualizaciion = fechaActualizaciion;
     }
+
+
+    public Ticket getTicket() {
+        return this.ticket;
+    }
+
+    public void setTicket(Ticket ticket) {
+        this.ticket = ticket;
+    }
+
+    public String getDescripcionCambio() {
+        return this.descripcionCambio;
+    }
+
+    public void setDescripcionCambio(String descripcionCambio) {
+        this.descripcionCambio = descripcionCambio;
+    }
+
 
 }

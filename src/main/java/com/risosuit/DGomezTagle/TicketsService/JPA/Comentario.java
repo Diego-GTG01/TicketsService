@@ -36,11 +36,11 @@ public class Comentario {
         this.idComentario = idComentario;
     }
 
-    public Ticket getTiket() {
+    public Ticket getTicket() {
         return this.ticket;
     }
 
-    public void setTiket(Ticket ticket) {
+    public void setTicket(Ticket ticket) {
         this.ticket = ticket;
     }
 
