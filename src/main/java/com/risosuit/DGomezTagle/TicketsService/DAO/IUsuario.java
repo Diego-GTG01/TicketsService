@@ -5,5 +5,5 @@ import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 public interface IUsuario {
     Result getByUsername(String username);
     Result getAllAgentes();
-    Result getByRol(int idRol);
+    Result getByRol(String nombre);
 }

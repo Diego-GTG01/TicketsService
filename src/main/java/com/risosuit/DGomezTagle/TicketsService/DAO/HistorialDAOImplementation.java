@@ -59,6 +59,7 @@ public class HistorialDAOImplementation implements IHistorial {
         try {
             Ticket ticket = entityManager.find(Ticket.class, historial.getTicket().getIdTicket());
             ticket.setEstado(historial.getEstadoActual());
+            ticket.setFechaActualizacion(new Date());
             historial.setFechaActualizaciion(new Date());
 
             entityManager.persist(historial);

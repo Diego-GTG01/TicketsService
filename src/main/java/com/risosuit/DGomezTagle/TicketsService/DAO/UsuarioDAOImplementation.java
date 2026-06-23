@@ -14,7 +14,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
-import com.risosuit.DGomezTagle.TicketsService.RestController.TicketsRestController;
 
 @Repository
 public class UsuarioDAOImplementation implements IUsuario {
@@ -80,13 +79,13 @@ public class UsuarioDAOImplementation implements IUsuario {
     }
 
     @Override
-    public Result getByRol(int idRol) {
+    public Result getByRol(String nombre) {
         Result<Usuario> result = new Result();
         try {
             TypedQuery<Usuario> query = entityManager.createQuery(
-                    "FROM Usuario u WHERE u.rol.idRol = :rol",
+                    "FROM Usuario u WHERE u.rol.nombre = :rol",
                     Usuario.class);
-            query.setParameter("rol", idRol);
+            query.setParameter("rol", nombre);
             List<Usuario> usuarios = query.getResultList();
 
             if (usuarios.isEmpty()) {

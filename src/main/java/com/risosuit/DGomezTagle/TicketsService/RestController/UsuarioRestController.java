@@ -10,6 +10,8 @@ import com.risosuit.DGomezTagle.TicketsService.JPA.Usuario;
 
 import jakarta.annotation.Generated;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,23 +45,50 @@ public class UsuarioRestController {
     }
 
     @GetMapping("/byRol")
-    public ResponseEntity getByRol(@RequestParam("idRol") int idRol) {
-        Result<Usuario> result = new Result();
-
+    public ResponseEntity<Result<UsuarioDTO>> getByRol(@RequestParam("nombre") String nombre) {
+        Result<Usuario> result = new Result<Usuario>();
+        Result<UsuarioDTO> resultDTO = new Result<UsuarioDTO>();
         try {
-            result = usuarioDAO.getByRol(idRol);
+            result = usuarioDAO.getByRol(nombre);
+            resultDTO.correct = result.correct;
+            resultDTO.message = result.message;
+            resultDTO.object = result.object;
+            resultDTO.objects = new ArrayList<UsuarioDTO>();
+            resultDTO.ex = result.ex;
+
             if (result.correct) {
-                return ResponseEntity.ok().body(result);
+                for (Usuario usuario : result.objects) {
+                    resultDTO.objects.add(mapUsuarioJPAToDTO(usuario));
+                }
+                return ResponseEntity.ok().body(resultDTO);
             } else {
-                return ResponseEntity.badRequest().body(result);
+                return ResponseEntity.badRequest().body(resultDTO);
             }
         } catch (Exception ex) {
-            result.correct = false;
-            result.message = ex.getLocalizedMessage();
-            result.ex = ex;
-            return ResponseEntity.internalServerError().body(result);
+            resultDTO.correct = false;
+            resultDTO.message = ex.getLocalizedMessage();
+            resultDTO.ex = ex;
+            return ResponseEntity.internalServerError().body(resultDTO);
         }
 
+    }
+
+    public static UsuarioDTO mapUsuarioJPAToDTO(Usuario usuario) {
+        if (usuario == null)
+            return null;
+        UsuarioDTO usuarioDTO = new UsuarioDTO(
+                usuario.getIdUsuario(),
+                usuario.getNombre(),
+                usuario.getApellidoPaterno(),
+                usuario.getApellidoMaterno(),
+                usuario.getUsername(),
+                usuario.getEmail(),
+                usuario.getTelefono(),
+                usuario.getCelular(),
+                usuario.getActivo(),
+                usuario.getRol());
+
+        return usuarioDTO;
     }
 
 }
