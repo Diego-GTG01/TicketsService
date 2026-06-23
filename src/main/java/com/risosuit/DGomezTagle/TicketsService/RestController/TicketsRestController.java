@@ -15,6 +15,7 @@ import com.risosuit.DGomezTagle.TicketsService.JPA.Ticket;
 import java.util.ArrayList;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/tickets")
+@CrossOrigin(origins = "http://localhost:4200")
 public class TicketsRestController {
 
     private final TicketsDAOImplementation ticketsDAO;
@@ -202,9 +204,95 @@ public class TicketsRestController {
         }
     }
 
+    @PatchMapping("status")
+    public ResponseEntity<Result<TicketDTO>> updateStatus(@RequestParam("idTicket") int idTicket,
+            @RequestParam("status") int status) {
+        Result<TicketDTO> resultDTO = new Result<TicketDTO>();
+        try {
+            Result<Ticket> resultJPA = ticketsDAO.updateStatus(idTicket, status);
+
+            resultDTO.correct = resultJPA.correct;
+            resultDTO.message = resultJPA.message;
+            resultDTO.ex = resultJPA.ex;
+            if (resultDTO.correct) {
+                if (resultJPA.object == null) {
+                    return ResponseEntity.noContent().build();
+                } else {
+                    resultDTO.object = mapTicketJPAtoDTO((Ticket) resultJPA.object);
+                }
+                return ResponseEntity.ok(resultDTO);
+            } else {
+                return ResponseEntity.badRequest().body(resultDTO);
+            }
+        } catch (Exception ex) {
+            resultDTO.correct = false;
+            resultDTO.message = ex.getLocalizedMessage();
+            resultDTO.ex = ex;
+            return ResponseEntity.internalServerError().body(resultDTO);
+        }
+    }
+
+    @PatchMapping("estado")
+    public ResponseEntity<Result<TicketDTO>> updateEstado(@RequestParam("idTicket") int idTicket,
+            @RequestParam("estado") int estado) {
+        Result<TicketDTO> resultDTO = new Result<TicketDTO>();
+        try {
+            Result<Ticket> resultJPA = ticketsDAO.updateEstado(idTicket, estado);
+
+            resultDTO.correct = resultJPA.correct;
+            resultDTO.message = resultJPA.message;
+            resultDTO.ex = resultJPA.ex;
+            if (resultDTO.correct) {
+                if (resultJPA.object == null) {
+                    return ResponseEntity.noContent().build();
+                } else {
+                    resultDTO.object = mapTicketJPAtoDTO((Ticket) resultJPA.object);
+                }
+                return ResponseEntity.ok(resultDTO);
+            } else {
+                return ResponseEntity.badRequest().body(resultDTO);
+            }
+        } catch (Exception ex) {
+            resultDTO.correct = false;
+            resultDTO.message = ex.getLocalizedMessage();
+            resultDTO.ex = ex;
+            return ResponseEntity.internalServerError().body(resultDTO);
+        }
+    }
+    
+    
+    @PatchMapping("prioridad")
+    public ResponseEntity<Result<TicketDTO>> updatePrioridad(@RequestParam("idTicket") int idTicket,
+            @RequestParam("idPrioridad") int idPrioridad) {
+        Result<TicketDTO> resultDTO = new Result<TicketDTO>();
+        try {
+            Result<Ticket> resultJPA = ticketsDAO.updatePrioridad(idTicket, idPrioridad);
+
+            resultDTO.correct = resultJPA.correct;
+            resultDTO.message = resultJPA.message;
+            resultDTO.ex = resultJPA.ex;
+            if (resultDTO.correct) {
+                if (resultJPA.object == null) {
+                    return ResponseEntity.noContent().build();
+                } else {
+                    resultDTO.object = mapTicketJPAtoDTO((Ticket) resultJPA.object);
+                }
+                return ResponseEntity.ok(resultDTO);
+            } else {
+                return ResponseEntity.badRequest().body(resultDTO);
+            }
+        } catch (Exception ex) {
+            resultDTO.correct = false;
+            resultDTO.message = ex.getLocalizedMessage();
+            resultDTO.ex = ex;
+            return ResponseEntity.internalServerError().body(resultDTO);
+        }
+    }
+
     public static UsuarioDTO mapUsuarioJPAToDTO(Usuario usuario) {
-        if (usuario == null)
+        if (usuario == null) {
             return null;
+        }
         UsuarioDTO usuarioDTO = new UsuarioDTO(
                 usuario.getIdUsuario(),
                 usuario.getNombre(),
@@ -221,8 +309,9 @@ public class TicketsRestController {
     }
 
     public static TicketDTO mapTicketJPAtoDTO(Ticket ticket) {
-        if (ticket == null)
+        if (ticket == null) {
             return null;
+        }
 
         TicketDTO ticketDTO = new TicketDTO(
                 ticket.getIdTicket(),
@@ -234,6 +323,7 @@ public class TicketsRestController {
                 mapUsuarioJPAToDTO(ticket.getAgenteAsignado()),
                 ticket.getPrioridad(),
                 ticket.getEstado());
+        ticketDTO.setStatus(ticket.getStatus());
 
         return ticketDTO;
     }

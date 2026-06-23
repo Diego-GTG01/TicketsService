@@ -16,6 +16,7 @@ public class TicketDTO {
     private UsuarioDTO agenteAsignado;
     private Prioridad prioridad;
     private EstadoTicket estado;
+    private int status;
 
     public TicketDTO() {
     }
@@ -104,5 +105,15 @@ public class TicketDTO {
     public void setEstado(EstadoTicket estado) {
         this.estado = estado;
     }
+
+
+    public int getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
 
 }

@@ -38,6 +38,8 @@ public class Ticket {
     @ManyToOne
     @JoinColumn(name = "idestado")
     private EstadoTicket estado;
+    @Column(name = "status")
+    private int status;
 
     public int getIdTicket() {
         return this.idTicket;
@@ -110,5 +112,15 @@ public class Ticket {
     public void setEstado(EstadoTicket estado) {
         this.estado = estado;
     }
+
+
+    public int getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
 
 }

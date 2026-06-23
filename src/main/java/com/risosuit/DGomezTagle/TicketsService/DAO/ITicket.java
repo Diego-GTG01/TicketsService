@@ -20,5 +20,8 @@ public interface ITicket {
     Result<Ticket> updatePrioridad(int idTicket, int idPrioridad);
 
     Result<Ticket> updateEstado(int idTicket, int idEstado);
+    
+    Result<Ticket> updateStatus(int idTicket, int status);
+    
 
 }
