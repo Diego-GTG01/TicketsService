@@ -11,8 +11,10 @@ import com.risosuit.DGomezTagle.TicketsService.DTO.UsuarioDTO;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Usuario;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 
 @Repository
 public class UsuarioDAOImplementation implements IUsuario {
@@ -134,29 +136,50 @@ public class UsuarioDAOImplementation implements IUsuario {
 
     }
 
+    @Transactional
     @Override
     public Result addUsuario(Usuario usuario) {
-        Result<Usuario> result = new Result();
+        Result<Usuario> result = new Result<>();
+
+        if (usuario == null) {
+            result.correct = false;
+            result.message = "Usuario no válido";
+            return result;
+        }
+
         try {
+            TypedQuery<Usuario> query = entityManager.createQuery(
+                    "SELECT u FROM Usuario u WHERE u.email = :email OR u.username = :username", Usuario.class);
+            query.setParameter("email", usuario.getEmail());
+            query.setParameter("username", usuario.getUsername());
 
-            if (usuario == null) {
+            List<Usuario> resultados = query.getResultList();
+
+            if (!resultados.isEmpty()) {
+                Usuario existente = resultados.get(0);
                 result.correct = false;
-                result.message = "Usuarios no Valido";
-            } else {
-                entityManager.persist(usuario);
 
-                result.message = "Usuario encontrados";
-                result.correct = true;
+                if (existente.getEmail().equalsIgnoreCase(usuario.getEmail())) {
+                    result.message = "El correo ya está registrado";
+                } else if (existente.getUsername().equalsIgnoreCase(usuario.getUsername())) {
+                    result.message = "El nombre de usuario ya está en uso";
+                } else {
+                    result.message = "El usuario o correo ya existen";
+                }
+                return result;
             }
+
+            entityManager.persist(usuario);
+            result.message = "Usuario registrado con éxito";
+            result.correct = true;
 
         } catch (Exception ex) {
             result.correct = false;
-            result.message = ex.getLocalizedMessage();
+            result.message = "Error en la operación: " + ex.getLocalizedMessage();
             result.ex = ex;
         }
 
         return result;
-
     }
 
     @Override

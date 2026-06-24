@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
@@ -72,7 +74,7 @@ public class UsuarioRestController {
         }
 
     }
-    
+
     @GetMapping
     public ResponseEntity<Result<UsuarioDTO>> getAll() {
         Result<Usuario> result = new Result<Usuario>();
@@ -102,9 +104,35 @@ public class UsuarioRestController {
 
     }
 
+    @PostMapping
+    public ResponseEntity<Result<UsuarioDTO>> addUser(@RequestBody Usuario usuario) {
+        Result<Usuario> result = new Result<Usuario>();
+        Result<UsuarioDTO> resultDTO = new Result<UsuarioDTO>();
+        try {
+            result = usuarioDAO.addUsuario(usuario);
+            resultDTO.correct = result.correct;
+            resultDTO.message = result.message;
+            resultDTO.ex = result.ex;
+
+            if (resultDTO.correct) {
+                resultDTO.object = mapUsuarioJPAToDTO((Usuario) result.object);
+                return ResponseEntity.ok().body(resultDTO);
+            } else {
+                return ResponseEntity.badRequest().body(resultDTO);
+            }
+        } catch (Exception ex) {
+            resultDTO.correct = false;
+            resultDTO.message = ex.getLocalizedMessage();
+            resultDTO.ex = ex;
+            return ResponseEntity.internalServerError().body(resultDTO);
+        }
+
+    }
+
     public static UsuarioDTO mapUsuarioJPAToDTO(Usuario usuario) {
-        if (usuario == null)
+        if (usuario == null) {
             return null;
+        }
         UsuarioDTO usuarioDTO = new UsuarioDTO(
                 usuario.getIdUsuario(),
                 usuario.getNombre(),

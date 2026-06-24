@@ -1,4 +1,3 @@
-
 package com.risosuit.DGomezTagle.TicketsService.RestController;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.risosuit.DGomezTagle.TicketsService.DAO.RolDAOImplementation;
 import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Rol;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @RequestMapping("Rol")
+@CrossOrigin(origins = "http://localhost:4200")
 public class RolRestController {
 
     private final RolDAOImplementation rolDAO;
