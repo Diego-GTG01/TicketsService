@@ -72,6 +72,35 @@ public class UsuarioRestController {
         }
 
     }
+    
+    @GetMapping
+    public ResponseEntity<Result<UsuarioDTO>> getAll() {
+        Result<Usuario> result = new Result<Usuario>();
+        Result<UsuarioDTO> resultDTO = new Result<UsuarioDTO>();
+        try {
+            result = usuarioDAO.getAll();
+            resultDTO.correct = result.correct;
+            resultDTO.message = result.message;
+            resultDTO.object = result.object;
+            resultDTO.objects = new ArrayList<UsuarioDTO>();
+            resultDTO.ex = result.ex;
+
+            if (result.correct) {
+                for (Usuario usuario : result.objects) {
+                    resultDTO.objects.add(mapUsuarioJPAToDTO(usuario));
+                }
+                return ResponseEntity.ok().body(resultDTO);
+            } else {
+                return ResponseEntity.badRequest().body(resultDTO);
+            }
+        } catch (Exception ex) {
+            resultDTO.correct = false;
+            resultDTO.message = ex.getLocalizedMessage();
+            resultDTO.ex = ex;
+            return ResponseEntity.internalServerError().body(resultDTO);
+        }
+
+    }
 
     public static UsuarioDTO mapUsuarioJPAToDTO(Usuario usuario) {
         if (usuario == null)
