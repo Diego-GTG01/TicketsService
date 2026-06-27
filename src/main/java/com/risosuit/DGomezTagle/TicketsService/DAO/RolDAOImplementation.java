@@ -46,4 +46,19 @@ public class RolDAOImplementation implements IRol {
         return result;
     }
 
+    public Rol getRolUsuarioPorNombre() {
+        try {
+            // Buscamos directamente el rol donde el nombre sea 'Usuario'
+            TypedQuery<Rol> query = entityManager.createQuery(
+                    "FROM Rol WHERE nombre = :nombreRol", Rol.class);
+            query.setParameter("nombreRol", "Usuario"); // Ajusta "nombre" si en tu entidad Rol se llama 'nombreRol', 'descripcion', etc.
+
+            return query.getSingleResult();
+        } catch (Exception ex) {
+            // Si no existe el rol o hay error, manejas la excepción
+            System.out.println("Error al buscar el rol Usuario: " + ex.getMessage());
+            return null;
+        }
+    }
+
 }

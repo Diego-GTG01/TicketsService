@@ -2,37 +2,48 @@ package com.risosuit.DGomezTagle.TicketsService.JPA;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name= "USUARIO")
 public class Usuario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idusuario")
     private long idUsuario;
+
     @Column(name = "nombre")
     private String nombre;
+
     @Column(name = "apellidopaterno")
     private String apellidoPaterno;
+
     @Column(name = "apellidomaterno")
     private String apellidoMaterno;
+
     @Column(name = "username")
     private String username;
+
     @Column(name = "email")
     private String email;
+
     @Column(name = "password")
     private String password;
+
     @Column(name = "telefono")
     private String telefono;
     @Column(name = "celular")
     private String celular;
     @Column(name = "activo")
     private int activo;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idrol")
     private Rol rol;
 
@@ -40,7 +51,7 @@ public class Usuario {
         return this.idUsuario;
     }
 
-    public void setIdUsuario(int idUsuario) {
+    public void setIdUsuario(long idUsuario) {
         this.idUsuario = idUsuario;
     }
 

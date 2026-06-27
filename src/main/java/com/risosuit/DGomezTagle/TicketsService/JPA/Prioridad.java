@@ -6,20 +6,30 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.List;
 @Entity
+@Table(name = "PRIORIDAD")
 public class Prioridad {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idprioridad")
-    private int idPrioridad;
+    private long idPrioridad;
+
     @Column(name = "nombre")
     private String nombre;
 
-    public int getIdPrioridad() {
+    @OneToMany(mappedBy = "prioridad")
+    private List<Ticket> tickets;
+
+
+    public long getIdPrioridad() {
         return this.idPrioridad;
     }
 
-    public void setIdPrioridad(int idPrioridad) {
+    public void setIdPrioridad(long idPrioridad) {
         this.idPrioridad = idPrioridad;
     }
 

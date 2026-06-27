@@ -1,44 +1,55 @@
 package com.risosuit.DGomezTagle.TicketsService.JPA;
 
+import jakarta.persistence.CascadeType;
 import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 
 @Entity
+@Table(name = "HISTORIAL")
 public class Historial {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idhistorial")
-    private int idHistorial;
-    @ManyToOne
+    private long idHistorial;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idticket")
     private Ticket ticket;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idestadoanterior")
     private EstadoTicket estadoAnterior;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idestadoactual")
     private EstadoTicket estadoActual;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idusuario")
     private Usuario usuario;
+
     @Column(name = "fechaactualizacion")
-    private Date fechaActualizaciion;
-    @Column(name= "descripcioncambio")
+    private Date fechaActualizacion;
+
+    @Column(name = "descripcioncambio")
     private String descripcionCambio;
 
-    public int getIdHistorial() {
+    public long getIdHistorial() {
         return this.idHistorial;
     }
 
-    public void setIdHistorial(int idHistorial) {
+    public void setIdHistorial(long idHistorial) {
         this.idHistorial = idHistorial;
     }
 
@@ -74,15 +85,6 @@ public class Historial {
         this.usuario = usuario;
     }
 
-    public Date getFechaActualizaciion() {
-        return this.fechaActualizaciion;
-    }
-
-    public void setFechaActualizaciion(Date fechaActualizaciion) {
-        this.fechaActualizaciion = fechaActualizaciion;
-    }
-
-
     public Ticket getTicket() {
         return this.ticket;
     }
@@ -99,5 +101,13 @@ public class Historial {
         this.descripcionCambio = descripcionCambio;
     }
 
+    public Date getFechaActualizacion() {
+        return fechaActualizacion;
+    }
+
+    public void setFechaActualizacion(Date fechaActualizacion) {
+        this.fechaActualizacion = fechaActualizacion;
+    }
+    
 
 }

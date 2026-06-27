@@ -11,7 +11,6 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Comentario;
-import com.risosuit.DGomezTagle.TicketsService.JPA.EstadoTicket;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Historial;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Ticket;
 
@@ -28,24 +27,25 @@ public class ComentarioDAOImplementation implements IComentario {
     private HistorialDAOImplementation historialDAO;
 
     @Override
-    public Result<Comentario> getComentarioByIdTicket(int idTicket) {
-
+    public Result<Comentario> getComentarioByIdTicket(long idTicket) {
         Result<Comentario> result = new Result<Comentario>();
         try {
-            TypedQuery<Comentario> query = entityManager.createQuery(
-                    "From Comentario c WHERE c.ticket.idTicket = :idTicket",
-                    Comentario.class);
-            query.setParameter("idTicket", idTicket);
-            List<Comentario> estado = query.getResultList();
-            if (estado == null) {
-                result.correct = false;
-                result.message = "No hay prioridades";
+            String jpql = "SELECT c FROM Comentario c "
+                    + "INNER JOIN FETCH c.usuario "
+                    + "WHERE c.ticket.idTicket = :idTicket";
 
+            TypedQuery<Comentario> query = entityManager.createQuery(jpql, Comentario.class);
+            query.setParameter("idTicket", idTicket);
+
+            List<Comentario> comentarios = query.getResultList();
+
+            if (comentarios.isEmpty()) {
+                result.correct = false;
+                result.message = "No se encontraron comentarios para este ticket";
             } else {
                 result.correct = true;
-                result.message = "Exito obteniendo prioridades";
-                result.objects = new ArrayList<>(estado);
-
+                result.message = "Exito obteniendo comentarios";
+                result.objects = new ArrayList<>(comentarios);
             }
 
         } catch (Exception ex) {
@@ -64,11 +64,12 @@ public class ComentarioDAOImplementation implements IComentario {
         try {
             if (comentario != null) {
                 Ticket ticket = entityManager.find(Ticket.class, comentario.getTicket().getIdTicket());
+
                 Historial historial = new Historial();
                 historial.setUsuario(comentario.getUsuario());
                 historial.setEstadoActual(ticket.getEstado());
                 historial.setEstadoAnterior(ticket.getEstado());
-                historial.setFechaActualizaciion(new Date());
+                historial.setFechaActualizacion(new Date());
                 historial.setTicket(ticket);
                 historial.setIdHistorial(0);
                 historial.setDescripcionCambio("Agregó un comentario");
@@ -103,5 +104,4 @@ public class ComentarioDAOImplementation implements IComentario {
 
         return result;
     }
-
 }

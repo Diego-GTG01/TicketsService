@@ -25,7 +25,7 @@ public class ComentarioRestController {
     private HistorialDAOImplementation historialDAO;
 
     @GetMapping
-    public ResponseEntity<Result<Comentario>> getAll(@RequestParam("idTicket") int idTicket) {
+    public ResponseEntity<Result<Comentario>> getAll(@RequestParam("idTicket") long idTicket) {
         Result<Comentario> result = new Result<Comentario>();
         try {
             result = comentarioDAO.getComentarioByIdTicket(idTicket);

@@ -7,6 +7,7 @@ import com.risosuit.DGomezTagle.TicketsService.DAO.UsuarioDAOImplementation;
 import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.DTO.UsuarioDTO;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Usuario;
+import com.risosuit.DGomezTagle.TicketsService.Services.EmailService;
 
 import jakarta.annotation.Generated;
 
@@ -14,8 +15,10 @@ import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -25,6 +28,9 @@ public class UsuarioRestController {
 
     @Autowired
     private UsuarioDAOImplementation usuarioDAO;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/byUsername")
     public ResponseEntity getByUsername(@RequestParam String username) {
@@ -110,6 +116,58 @@ public class UsuarioRestController {
         Result<UsuarioDTO> resultDTO = new Result<UsuarioDTO>();
         try {
             result = usuarioDAO.addUsuario(usuario);
+            resultDTO.correct = result.correct;
+            resultDTO.message = result.message;
+            resultDTO.ex = result.ex;
+
+            if (resultDTO.correct) {
+                resultDTO.object = mapUsuarioJPAToDTO((Usuario) result.object);
+
+                emailService.enviarCorreoVerificacion(usuario.getEmail(), "hola ");
+                return ResponseEntity.ok().body(resultDTO);
+            } else {
+                return ResponseEntity.badRequest().body(resultDTO);
+            }
+        } catch (Exception ex) {
+            resultDTO.correct = false;
+            resultDTO.message = ex.getLocalizedMessage();
+            resultDTO.ex = ex;
+            return ResponseEntity.internalServerError().body(resultDTO);
+        }
+
+    }
+
+    @PutMapping
+    public ResponseEntity<Result<UsuarioDTO>> updateUser(@RequestBody Usuario usuario) {
+        Result<Usuario> result = new Result<Usuario>();
+        Result<UsuarioDTO> resultDTO = new Result<UsuarioDTO>();
+        try {
+            result = usuarioDAO.updateUsuario(usuario);
+            resultDTO.correct = result.correct;
+            resultDTO.message = result.message;
+            resultDTO.ex = result.ex;
+
+            if (resultDTO.correct) {
+                resultDTO.object = mapUsuarioJPAToDTO((Usuario) result.object);
+                return ResponseEntity.ok().body(resultDTO);
+            } else {
+                return ResponseEntity.badRequest().body(resultDTO);
+            }
+        } catch (Exception ex) {
+            resultDTO.correct = false;
+            resultDTO.message = ex.getLocalizedMessage();
+            resultDTO.ex = ex;
+            return ResponseEntity.internalServerError().body(resultDTO);
+        }
+
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Result<UsuarioDTO>> deleteUser(@RequestParam("idUsuario") int idUsuario) {
+        Result<Usuario> result = new Result<Usuario>();
+        Result<UsuarioDTO> resultDTO = new Result<UsuarioDTO>();
+        try {
+            result = usuarioDAO.deleteUsuario(idUsuario);
             resultDTO.correct = result.correct;
             resultDTO.message = result.message;
             resultDTO.ex = result.ex;

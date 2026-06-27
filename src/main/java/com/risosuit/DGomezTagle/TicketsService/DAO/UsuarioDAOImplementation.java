@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.DTO.UsuarioDTO;
+import com.risosuit.DGomezTagle.TicketsService.JPA.Ticket;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Usuario;
 
 import jakarta.persistence.EntityManager;
@@ -23,27 +24,33 @@ public class UsuarioDAOImplementation implements IUsuario {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Autowired
+    private RolDAOImplementation rolDAO;
+
     @Override
     public Result<Usuario> getByUsername(String username) {
+
         Result<Usuario> result = new Result();
+
         try {
             TypedQuery<Usuario> query = entityManager.createQuery(
-                    "SELECT u FROM Usuario u WHERE u.username = :username", Usuario.class);
-            query.setParameter("username", username);
-            Usuario user = query.getSingleResult();
-            if (user == null) {
-                result.correct = false;
-                result.message = "Usuario no encontrado";
-            } else {
-                result.object = user;
+                    "SELECT u FROM Usuario u "
+                    + "JOIN FETCH u.rol "
+                    + "WHERE u.username = :username",
+                    Usuario.class
+            );
 
-                result.message = "Usuario encontrados";
-                result.correct = true;
-            }
+            query.setParameter("username", username);
+
+            Usuario user = query.getSingleResult();
+
+            result.object = user;
+            result.correct = true;
+            result.message = "Usuario encontrado";
 
         } catch (Exception ex) {
             result.correct = false;
-            result.message = ex.getLocalizedMessage();
+            result.message = ex.getMessage();
             result.ex = ex;
         }
 
@@ -169,6 +176,11 @@ public class UsuarioDAOImplementation implements IUsuario {
                 return result;
             }
 
+            if (usuario.getRol() == null) {
+                usuario.setRol(rolDAO.getRolUsuarioPorNombre());
+            }
+            usuario.setActivo(0);
+
             entityManager.persist(usuario);
             result.message = "Usuario registrado con éxito";
             result.correct = true;
@@ -182,11 +194,11 @@ public class UsuarioDAOImplementation implements IUsuario {
         return result;
     }
 
+    @Transactional
     @Override
     public Result updateUsuario(Usuario usuarioRecibido) {
         Result<Usuario> result = new Result();
         try {
-
             if (usuarioRecibido == null) {
                 result.correct = false;
                 result.message = "Usuarios no Valido";
@@ -197,8 +209,7 @@ public class UsuarioDAOImplementation implements IUsuario {
                 usuario.setApellidoPaterno(usuarioRecibido.getApellidoPaterno());
                 usuario.setCelular(usuarioRecibido.getCelular());
                 usuario.setEmail(usuarioRecibido.getEmail());
-                usuario.setNombre(usuarioRecibido.getUsername());
-                usuario.setPassword(usuarioRecibido.getPassword());
+                usuario.setNombre(usuarioRecibido.getNombre());
                 usuario.setRol(usuarioRecibido.getRol());
                 usuario.setTelefono(usuarioRecibido.getTelefono());
                 usuario.setUsername(usuarioRecibido.getUsername());
@@ -218,32 +229,64 @@ public class UsuarioDAOImplementation implements IUsuario {
         return result;
     }
 
+    @Transactional
     @Override
     public Result deleteUsuario(int idUsuario) {
         Result result = new Result();
         try {
-            if (idUsuario != 0) {
-                Usuario usuario = entityManager.find(Usuario.class, idUsuario);
-                if (usuario != null) {
-                    entityManager.remove(usuario);
 
-                } else {
-                    result.correct = false;
-                    result.message = "Usuario no encontrado";
-                }
-
-            } else {
+            if (idUsuario == 0) {
                 result.correct = false;
-                result.message = "Usuario no Valido";
-
+                result.message = "Usuario no válido";
+                return result;
             }
+
+            Usuario usuario = entityManager.find(Usuario.class, idUsuario);
+
+            if (usuario == null) {
+                result.correct = false;
+                result.message = "Usuario no encontrado";
+                return result;
+            }
+            String jpql = "SELECT t FROM Ticket t "
+                    + "LEFT JOIN FETCH t.usuarioSolicitante "
+                    + "LEFT JOIN FETCH t.agenteAsignado WHERE t.agenteAsignado.idUsuario = :idUsuario";
+
+            TypedQuery<Ticket> query = entityManager.createQuery(jpql, Ticket.class);
+            query.setParameter("idUsuario", (long) usuario.getIdUsuario());
+            List<Ticket> tickets = query.getResultList();
+            for (Ticket ticket : tickets) {
+                entityManager.remove(ticket);
+            }
+            entityManager.flush();
+
+            jpql = "SELECT t FROM Ticket t "
+                    + "LEFT JOIN FETCH t.usuarioSolicitante "
+                    + "LEFT JOIN FETCH t.agenteAsignado WHERE t.usuarioSolicitante.idUsuario = :idUsuario";
+
+            query = entityManager.createQuery(jpql, Ticket.class);
+            query.setParameter("idUsuario", (long) usuario.getIdUsuario());
+            tickets = query.getResultList();
+            for (Ticket ticket : tickets) {
+                entityManager.remove(ticket);
+            }
+            entityManager.flush();
+
+            entityManager.remove(usuario);
+            entityManager.flush();
+
+            result.correct = true;
+            result.object = usuario;
+
         } catch (Exception e) {
+
             result.correct = false;
             result.message = e.getLocalizedMessage();
             result.ex = e;
-        }
-        return result;
 
+        }
+
+        return result;
     }
 
     @Override

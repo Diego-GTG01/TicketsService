@@ -12,15 +12,15 @@ public class EstadoTicket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idestado")
-    private int idEstado;
+    private long idEstado;
     @Column(name = "nombre")
     private String nombre;
 
-    public int getIdEstado() {
+    public long getIdEstado() {
         return this.idEstado;
     }
 
-    public void setIdEstado(int idEstado) {
+    public void setIdEstado(long idEstado) {
         this.idEstado = idEstado;
     }
 

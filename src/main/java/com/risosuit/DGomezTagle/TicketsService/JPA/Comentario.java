@@ -4,29 +4,37 @@ import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "COMENTARIO")
 public class Comentario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idcomentario")
     private long idComentario;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idticket")
     private Ticket ticket;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idusuario")
     private Usuario usuario;
+
     @Column(name = "mensaje")
     private String mensaje;
+
     @Column(name = "fecha")
-    private Date Fecha;
+    private Date fecha;
 
     public long getIdComentario() {
         return this.idComentario;
@@ -61,11 +69,11 @@ public class Comentario {
     }
 
     public Date getFecha() {
-        return this.Fecha;
+        return this.fecha;
     }
 
     public void setFecha(Date Fecha) {
-        this.Fecha = Fecha;
+        this.fecha = Fecha;
     }
 
 }

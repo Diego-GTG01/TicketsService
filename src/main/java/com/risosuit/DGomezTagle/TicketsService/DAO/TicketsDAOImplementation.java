@@ -24,70 +24,93 @@ import jakarta.transaction.Transactional;
 
 @Repository
 public class TicketsDAOImplementation implements ITicket {
-    
+
     @Autowired
     private EstadoDAOImplementation estadoDAO;
-    
+
     private final EntityManager entityManager;
-    
+
     TicketsDAOImplementation(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
-    
+
     @Override
     public Result<Ticket> getAll() {
         Result<Ticket> result = new Result<>();
         try {
-            TypedQuery<Ticket> query = entityManager.createQuery("From Ticket", Ticket.class);
+            String jpql = "SELECT t FROM Ticket t "
+                    + "LEFT JOIN FETCH t.usuarioSolicitante "
+                    + "LEFT JOIN FETCH t.agenteAsignado";
+
+            TypedQuery<Ticket> query = entityManager.createQuery(jpql, Ticket.class);
             List<Ticket> tickets = query.getResultList();
-            result.objects = new ArrayList<>(tickets);
-            result.correct = true;
+
+            if (tickets.isEmpty()) {
+                result.correct = false;
+                result.message = "No se encontraron tickets";
+            } else {
+                result.correct = true;
+                result.message = "Tickets recuperados exitosamente";
+                result.objects = new ArrayList<>(tickets);
+            }
         } catch (Exception ex) {
             result.correct = false;
             result.message = ex.getLocalizedMessage();
             result.ex = ex;
         }
-        
+
         return result;
     }
-    
+
     @Override
     public Result<Ticket> getByIdTicket(int idTicket) {
         Result<Ticket> result = new Result<>();
         try {
-            Ticket ticket = entityManager.find(Ticket.class, idTicket);
-            if (ticket == null) {
+            String jpql = "SELECT t FROM Ticket t "
+                    + "LEFT JOIN FETCH t.usuarioSolicitante "
+                    + "LEFT JOIN FETCH t.agenteAsignado "
+                    + "WHERE t.idTicket = :idTicket";
+
+            TypedQuery<Ticket> query = entityManager.createQuery(jpql, Ticket.class);
+            query.setParameter("idTicket", idTicket);
+
+            List<Ticket> tickets = query.getResultList();
+
+            if (tickets.isEmpty()) {
                 result.correct = false;
                 result.message = "Ticket no encontrado";
             } else {
                 result.correct = true;
                 result.message = "Ticket encontrado";
-                result.object = ticket;
+                result.object = tickets.get(0);
             }
         } catch (Exception ex) {
             result.correct = false;
             result.message = ex.getLocalizedMessage();
             result.ex = ex;
         }
-        
+
         return result;
     }
-    
+
     @Override
     public Result<Ticket> getByIdUsuarioSolicitado(int idUsuarioSolicitado) {
         Result<Ticket> result = new Result<>();
         try {
-            TypedQuery query = entityManager.createQuery(
-                    "SELECT t FROM Ticket t WHERE t.usuarioSolicitante.idUsuario = :idUsuario", Ticket.class);
+            String jpql = "SELECT t FROM Ticket t "
+                    + "JOIN FETCH t.usuarioSolicitante u "
+                    + "WHERE u.idUsuario = :idUsuario";
+
+            TypedQuery<Ticket> query = entityManager.createQuery(jpql, Ticket.class);
             query.setParameter("idUsuario", idUsuarioSolicitado);
             List<Ticket> tickets = query.getResultList();
-            
+
             if (tickets.isEmpty()) {
                 result.correct = false;
-                result.message = "Tickets no encontrado";
+                result.message = "Tickets no encontrados";
             } else {
                 result.correct = true;
-                result.message = "Ticket encontrado";
+                result.message = "Tickets encontrados";
                 result.objects = new ArrayList<>(tickets);
             }
         } catch (Exception ex) {
@@ -95,25 +118,28 @@ public class TicketsDAOImplementation implements ITicket {
             result.message = ex.getLocalizedMessage();
             result.ex = ex;
         }
-        
+
         return result;
     }
-    
+
     @Override
     public Result<Ticket> getByIdUsuarioAgente(int idUsuarioAgente) {
         Result<Ticket> result = new Result<>();
         try {
-            TypedQuery query = entityManager.createQuery(
-                    "SELECT t FROM Ticket t WHERE t.agenteAsignado.idUsuario = :idUsuario", Ticket.class);
+            String jpql = "SELECT t FROM Ticket t "
+                    + "JOIN FETCH t.agenteAsignado a "
+                    + "WHERE a.idUsuario = :idUsuario";
+
+            TypedQuery<Ticket> query = entityManager.createQuery(jpql, Ticket.class);
             query.setParameter("idUsuario", idUsuarioAgente);
             List<Ticket> tickets = query.getResultList();
-            
+
             if (tickets.isEmpty()) {
                 result.correct = false;
-                result.message = "Tickets no encontrado";
+                result.message = "Tickets no encontrados";
             } else {
                 result.correct = true;
-                result.message = "Ticket encontrado";
+                result.message = "Tickets encontrados";
                 result.objects = new ArrayList<>(tickets);
             }
         } catch (Exception ex) {
@@ -121,10 +147,10 @@ public class TicketsDAOImplementation implements ITicket {
             result.message = ex.getLocalizedMessage();
             result.ex = ex;
         }
-        
+
         return result;
     }
-    
+
     @Transactional
     @Override
     public Result<Ticket> addTicket(Ticket ticket) {
@@ -134,40 +160,44 @@ public class TicketsDAOImplementation implements ITicket {
                 ticket.setFechaActualizacion(new Date());
                 ticket.setFechaCreacion(new Date());
                 ticket.setAgenteAsignado(null);
+                ticket.setComentarios(new ArrayList<>());
+                ticket.setHistorial(new ArrayList<>());
+
                 Result<EstadoTicket> resultEstado = estadoDAO.getByName("Pendiente");
                 if (resultEstado.correct) {
                     ticket.setEstado((EstadoTicket) resultEstado.object);
                 }
-                
+
                 entityManager.persist(ticket);
                 entityManager.flush();
-                
+
                 result.correct = true;
                 result.object = ticket;
                 result.message = "Ticket creado correctamente";
-                
+
             } else {
                 result.correct = false;
                 result.message = "Ticket invalido";
             }
-            
+
         } catch (Exception ex) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            
+
             result.correct = false;
             result.message = "Error al guardar el ticket: " + ex.getLocalizedMessage();
+            result.ex = ex;
         }
-        
+
         return result;
     }
-    
+
     @Transactional
     @Override
     public Result<Ticket> asignarTicket(int idTicket, int idAgente) {
         Result<Ticket> result = new Result<>();
         try {
             Ticket ticket = entityManager.find(Ticket.class, idTicket);
-            
+
             if (ticket == null) {
                 result.correct = false;
                 result.message = "Ticket no encontrado";
@@ -197,52 +227,53 @@ public class TicketsDAOImplementation implements ITicket {
             result.correct = true;
             result.object = ticket;
             result.message = "Agente asignado";
-            
+
         } catch (Exception ex) {
             result.correct = false;
             result.message = ex.getLocalizedMessage();
             result.ex = ex;
         }
-        
+
         return result;
     }
-    
+
     @Transactional
     @Override
     public Result<Ticket> updatePrioridad(
             int idTicket,
             int idPrioridad) {
-        
+
         Result<Ticket> result = new Result<>();
-        
+
         try {
-            
+
             Ticket ticket = entityManager.find(Ticket.class, idTicket);
-            
+
             if (ticket == null) {
                 result.correct = false;
                 result.message = "Ticket no encontrado";
                 return result;
             }
-            
+
             Prioridad prioridad = entityManager.find(Prioridad.class, idPrioridad);
-            
+
             ticket.setPrioridad(prioridad);
-            
+
             entityManager.merge(ticket);
-            
+
             result.correct = true;
             result.object = ticket;
-            
+
         } catch (Exception ex) {
-            
+
             result.correct = false;
             result.message = ex.getLocalizedMessage();
             result.ex = ex;
         }
-        
+
         return result;
     }
+
     @Transactional
     @Override
     public Result<Ticket> updateEstado(
@@ -256,28 +287,29 @@ public class TicketsDAOImplementation implements ITicket {
                 result.message = "Ticket no encontrado";
                 return result;
             }
-            
+
             EstadoTicket estado = entityManager.find(
                     EstadoTicket.class,
                     idEstado);
-            
+
             ticket.setEstado(estado);
-            
+
             entityManager.merge(ticket);
-            
+
             result.correct = true;
             result.object = ticket;
             result.message = "Estado actualizado";
-            
+
         } catch (Exception ex) {
-            
+
             result.correct = false;
             result.message = ex.getLocalizedMessage();
             result.ex = ex;
         }
-        
+
         return result;
     }
+
     @Transactional
     @Override
     public Result<Ticket> updateStatus(int idTicket, int status) {
@@ -289,7 +321,7 @@ public class TicketsDAOImplementation implements ITicket {
                 result.message = "Ticket no encontrado";
                 return result;
             }
-            
+
             Result<EstadoTicket> resultEstado = estadoDAO.getByName("Abierto");
             if (resultEstado.correct) {
                 ticket.setEstado((EstadoTicket) resultEstado.object);
@@ -297,25 +329,21 @@ public class TicketsDAOImplementation implements ITicket {
             ticket.setStatus(status);
             ticket.setFechaActualizacion(new Date());
             ticket.setEstado((EstadoTicket) resultEstado.object);
-            
+
             entityManager.merge(ticket);
-            
+
             result.correct = true;
             result.object = ticket;
             result.message = "status actualizado";
-            
+
         } catch (Exception ex) {
-            
+
             result.correct = false;
             result.message = ex.getLocalizedMessage();
             result.ex = ex;
         }
-        
+
         return result;
     }
-    
-    
-    
-    
-    
+
 }

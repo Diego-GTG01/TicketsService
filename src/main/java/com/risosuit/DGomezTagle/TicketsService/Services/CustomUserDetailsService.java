@@ -23,15 +23,19 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Result<Usuario> result = new Result();
-        result = usuarioDAO.getByUsername(username);
+        Result result = usuarioDAO.getByUsername(username);
+
+        if (!result.correct || result.object == null) {
+            throw new UsernameNotFoundException("El usuario " + username + " no existe en el sistema.");
+        }
+
         Usuario usuario = (Usuario) result.object;
 
         return User.builder()
                 .username(usuario.getUsername())
                 .password(usuario.getPassword())
                 .roles(usuario.getRol().getNombre())
-                
+                .disabled(usuario.getActivo() == 0)
                 .build();
     }
 }

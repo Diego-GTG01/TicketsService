@@ -5,23 +5,34 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+
+import jakarta.persistence.Table;
+import java.util.List;
 
 @Entity
+@Table(name = "ROL")
 public class Rol {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idrol")
-    private int idRol;
+    private long idRol;
+
     @Column(name = "nombre")
     private String nombre;
+
     @Column(name = "descripcion")
     private String descripcion;
 
-    public int getIdRol() {
+    @OneToMany(mappedBy = "rol")
+    private List<Usuario> usuarios;
+
+    public long getIdRol() {
         return this.idRol;
     }
 
-    public void setIdRol(int idRol) {
+    public void setIdRol(long idRol) {
         this.idRol = idRol;
     }
 

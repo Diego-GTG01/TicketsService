@@ -34,11 +34,14 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null ||
-                !authHeader.startsWith("Bearer ")) {
-
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -46,18 +49,13 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         try {
-
-            String username =
-                    jwtService.extractUsername(token);
+            String username = jwtService.extractUsername(token);
 
             if (username != null &&
-                    SecurityContextHolder
-                            .getContext()
-                            .getAuthentication() == null) {
+                SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UserDetails userDetails =
-                        userDetailsService
-                                .loadUserByUsername(username);
+                        userDetailsService.loadUserByUsername(username);
 
                 if (jwtService.isTokenValid(token)) {
 
@@ -71,14 +69,13 @@ public class JwtFilter extends OncePerRequestFilter {
                             new WebAuthenticationDetailsSource()
                                     .buildDetails(request));
 
-                    SecurityContextHolder
-                            .getContext()
+                    SecurityContextHolder.getContext()
                             .setAuthentication(authToken);
                 }
             }
 
         } catch (Exception e) {
-            System.out.println("JWT inválido");
+            System.out.println("JWT inválido: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

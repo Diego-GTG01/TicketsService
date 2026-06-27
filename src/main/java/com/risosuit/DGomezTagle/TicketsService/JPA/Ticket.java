@@ -1,5 +1,7 @@
 package com.risosuit.DGomezTagle.TicketsService.JPA;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import java.util.Date;
 
 import jakarta.persistence.Id;
@@ -8,44 +10,79 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Table;
+import java.util.List;
 
 @Entity
-
+@Table(name = "TICKET")
 public class Ticket {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idticket")
-    private int idTicket;
+    private long idTicket;
+
     @Column(name = "titulo")
     private String titulo;
+
     @Column(name = "descripcion")
     private String descripcion;
+
     @Column(name = "fechacreacion")
-    private Date FechaCreacion;
+    private Date fechaCreacion;
+
     @Column(name = "fechaactualizacion")
-    private Date FechaActualizacion;
-    @ManyToOne
+    private Date fechaActualizacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idusuariosolicitante")
     private Usuario usuarioSolicitante;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idagenteasignado")
     private Usuario agenteAsignado;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idprioridad")
     private Prioridad prioridad;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idestado")
     private EstadoTicket estado;
+
     @Column(name = "status")
     private int status;
+    @JsonIgnore
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comentario> comentarios;
+    @JsonIgnore
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Historial> historial;
 
-    public int getIdTicket() {
+    public List<Comentario> getComentarios() {
+        return comentarios;
+    }
+
+    public void setComentarios(List<Comentario> comentarios) {
+        this.comentarios = comentarios;
+    }
+
+    public List<Historial> getHistorial() {
+        return historial;
+    }
+
+    public void setHistorial(List<Historial> historial) {
+        this.historial = historial;
+    }
+
+    public long getIdTicket() {
         return this.idTicket;
     }
 
-    public void setIdTicket(int idTicket) {
+    public void setIdTicket(long idTicket) {
         this.idTicket = idTicket;
     }
 
@@ -66,19 +103,19 @@ public class Ticket {
     }
 
     public Date getFechaCreacion() {
-        return this.FechaCreacion;
+        return this.fechaCreacion;
     }
 
     public void setFechaCreacion(Date FechaCreacion) {
-        this.FechaCreacion = FechaCreacion;
+        this.fechaCreacion = FechaCreacion;
     }
 
     public Date getFechaActualizacion() {
-        return this.FechaActualizacion;
+        return this.fechaActualizacion;
     }
 
     public void setFechaActualizacion(Date FechaActualizacion) {
-        this.FechaActualizacion = FechaActualizacion;
+        this.fechaActualizacion = FechaActualizacion;
     }
 
     public Usuario getUsuarioSolicitante() {
@@ -113,7 +150,6 @@ public class Ticket {
         this.estado = estado;
     }
 
-
     public int getStatus() {
         return this.status;
     }
@@ -121,6 +157,5 @@ public class Ticket {
     public void setStatus(int status) {
         this.status = status;
     }
-
 
 }

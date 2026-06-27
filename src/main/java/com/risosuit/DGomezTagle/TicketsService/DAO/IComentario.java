@@ -4,6 +4,6 @@ import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Comentario;
 
 public interface IComentario {
-    Result<Comentario> getComentarioByIdTicket(int idTicket);
+    Result<Comentario> getComentarioByIdTicket(long idTicket);
     Result<Comentario> addComentario(Comentario comentario);
 }

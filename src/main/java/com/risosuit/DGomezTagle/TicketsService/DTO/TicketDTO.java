@@ -7,7 +7,7 @@ import com.risosuit.DGomezTagle.TicketsService.JPA.Prioridad;
 
 public class TicketDTO {
 
-    private int idTicket;
+    private long idTicket;
     private String titulo;
     private String descripcion;
     private Date FechaCreacion;
@@ -21,7 +21,7 @@ public class TicketDTO {
     public TicketDTO() {
     }
 
-    public TicketDTO(int idTicket, String titulo, String descripcion, Date FechaCreacion, Date FechaActualizacion,
+    public TicketDTO(long idTicket, String titulo, String descripcion, Date FechaCreacion, Date FechaActualizacion,
             UsuarioDTO usuarioSolicitante, UsuarioDTO agenteAsignado, Prioridad prioridad, EstadoTicket estado) {
         this.idTicket = idTicket;
         this.titulo = titulo;
@@ -34,11 +34,11 @@ public class TicketDTO {
         this.estado = estado;
     }
 
-    public int getIdTicket() {
+    public long getIdTicket() {
         return this.idTicket;
     }
 
-    public void setIdTicket(int idTicket) {
+    public void setIdTicket(long idTicket) {
         this.idTicket = idTicket;
     }
 
