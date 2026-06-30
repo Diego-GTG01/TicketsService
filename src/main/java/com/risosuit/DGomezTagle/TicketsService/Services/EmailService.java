@@ -35,7 +35,7 @@ public class EmailService {
                     Por favor, confirma tu dirección de correo electrónico haciendo clic en el botón de abajo para activar tu cuenta.
                 </p>
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="http://localhost:8080/api/auth/verificar?token=""" + token + """
+                    <a href="http://localhost:4200/token?token=""" + token + """
                     " style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block;">
                         Verificar Cuenta
                     </a>

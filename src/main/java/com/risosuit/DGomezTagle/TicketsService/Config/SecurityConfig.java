@@ -31,7 +31,6 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -43,6 +42,7 @@ public class SecurityConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/Usuario").permitAll()
+                .requestMatchers("/token").permitAll()
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated())
