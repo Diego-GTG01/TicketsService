@@ -10,6 +10,7 @@ import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.DTO.UsuarioDTO;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Ticket;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Usuario;
+import com.risosuit.DGomezTagle.TicketsService.JPA.VerificacionToken;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -26,6 +27,9 @@ public class UsuarioDAOImplementation implements IUsuario {
 
     @Autowired
     private RolDAOImplementation rolDAO;
+
+    @Autowired
+    private VerificacionTokenDAOImplementation tokenDAO;
 
     @Override
     public Result<Usuario> getByUsername(String username) {
@@ -182,6 +186,14 @@ public class UsuarioDAOImplementation implements IUsuario {
             usuario.setActivo(0);
 
             entityManager.persist(usuario);
+            VerificacionToken token = new VerificacionToken();
+            token.setUsuarioToken(usuario);
+
+            Result<VerificacionToken> resultVerify = tokenDAO.addToken(token);
+            if (resultVerify.correct) {
+                result.correct = false;
+                result.message = "Algo salió mal en el token";
+            }
             result.message = "Usuario registrado con éxito";
             result.correct = true;
 

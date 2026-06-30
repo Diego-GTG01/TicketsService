@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.risosuit.DGomezTagle.TicketsService.DAO.UsuarioDAOImplementation;
+import com.risosuit.DGomezTagle.TicketsService.DAO.VerificacionTokenDAOImplementation;
 import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.DTO.UsuarioDTO;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Usuario;
@@ -28,6 +29,9 @@ public class UsuarioRestController {
 
     @Autowired
     private UsuarioDAOImplementation usuarioDAO;
+    
+    @Autowired
+    private VerificacionTokenDAOImplementation tokenDAO;
 
     @Autowired
     private EmailService emailService;
@@ -122,8 +126,8 @@ public class UsuarioRestController {
 
             if (resultDTO.correct) {
                 resultDTO.object = mapUsuarioJPAToDTO((Usuario) result.object);
+                
 
-                emailService.enviarCorreoVerificacion(usuario.getEmail(), "hola ");
                 return ResponseEntity.ok().body(resultDTO);
             } else {
                 return ResponseEntity.badRequest().body(resultDTO);
