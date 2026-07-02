@@ -180,7 +180,7 @@ public class UsuarioDAOImplementation implements IUsuario {
                 return result;
             }
 
-            if (usuario.getRol() == null) {
+            if (usuario.getRol() == null || usuario.getRol().getIdRol() == 0) {
                 usuario.setRol(rolDAO.getRolUsuarioPorNombre());
             }
             usuario.setActivo(0);
@@ -209,28 +209,58 @@ public class UsuarioDAOImplementation implements IUsuario {
     @Transactional
     @Override
     public Result updateUsuario(Usuario usuarioRecibido) {
-        Result<Usuario> result = new Result();
+        Result<Usuario> result = new Result<>();
         try {
-            if (usuarioRecibido == null) {
+            if (usuarioRecibido == null || usuarioRecibido.getIdUsuario() == 0) {
                 result.correct = false;
-                result.message = "Usuarios no Valido";
-            } else {
-                Usuario usuario = entityManager.find(Usuario.class, usuarioRecibido.getIdUsuario());
-                usuario.setActivo(usuarioRecibido.getActivo());
-                usuario.setApellidoMaterno(usuarioRecibido.getApellidoMaterno());
-                usuario.setApellidoPaterno(usuarioRecibido.getApellidoPaterno());
-                usuario.setCelular(usuarioRecibido.getCelular());
-                usuario.setEmail(usuarioRecibido.getEmail());
-                usuario.setNombre(usuarioRecibido.getNombre());
-                usuario.setRol(usuarioRecibido.getRol());
-                usuario.setTelefono(usuarioRecibido.getTelefono());
-                usuario.setUsername(usuarioRecibido.getUsername());
-
-                entityManager.merge(usuario);
-
-                result.message = "Usuario encontrados";
-                result.correct = true;
+                result.message = "Usuario no válido o ID faltante";
+                return result;
             }
+
+            TypedQuery<Usuario> query = entityManager.createQuery(
+                    "SELECT u FROM Usuario u WHERE (u.username = :username OR u.email = :email) AND u.idUsuario != :id",
+                    Usuario.class);
+
+            query.setParameter("username", usuarioRecibido.getUsername());
+            query.setParameter("email", usuarioRecibido.getEmail());
+            query.setParameter("id", usuarioRecibido.getIdUsuario());
+
+            List<Usuario> resultados = query.getResultList();
+
+            if (!resultados.isEmpty()) {
+                Usuario duplicado = resultados.get(0);
+                result.correct = false;
+
+                if (duplicado.getUsername().equalsIgnoreCase(usuarioRecibido.getUsername())) {
+                    result.message = "El nombre de usuario ya está en uso por otra cuenta";
+                } else {
+                    result.message = "El correo electrónico ya está en uso por otra cuenta";
+                }
+                return result;
+            }
+
+            Usuario usuario = entityManager.find(Usuario.class, usuarioRecibido.getIdUsuario());
+            if (usuario == null) {
+                result.correct = false;
+                result.message = "El usuario a actualizar no existe en la base de datos";
+                return result;
+            }
+
+            usuario.setActivo(usuarioRecibido.getActivo());
+            usuario.setApellidoMaterno(usuarioRecibido.getApellidoMaterno());
+            usuario.setApellidoPaterno(usuarioRecibido.getApellidoPaterno());
+            usuario.setCelular(usuarioRecibido.getCelular());
+            usuario.setEmail(usuarioRecibido.getEmail());
+            usuario.setNombre(usuarioRecibido.getNombre());
+            usuario.setRol(usuarioRecibido.getRol());
+            usuario.setTelefono(usuarioRecibido.getTelefono());
+            usuario.setUsername(usuarioRecibido.getUsername());
+
+            entityManager.merge(usuario);
+
+            result.message = "Usuario actualizado correctamente";
+            result.correct = true;
+            result.object = usuario;
 
         } catch (Exception ex) {
             result.correct = false;

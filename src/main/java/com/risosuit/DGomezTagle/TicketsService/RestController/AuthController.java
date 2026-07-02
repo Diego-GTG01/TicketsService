@@ -90,4 +90,25 @@ public class AuthController {
             return ResponseEntity.internalServerError().body(result);
         }
     }
+
+    @GetMapping("/verify")
+        public ResponseEntity<Result> verificarToken(@RequestParam("token") String token) {
+        Result result = new Result();
+
+        try {
+            result.correct = jwtService.isTokenValid(token);
+            if (result.correct) {
+                result.message = "Token Valido";
+                return ResponseEntity.ok().body(result);
+            } else {
+                result.message = "Token invalido";
+                return ResponseEntity.status(401).body(result);
+            }
+        } catch (Exception e) {
+            result.correct = false;
+            result.message = e.getLocalizedMessage();
+            result.ex = e;
+            return ResponseEntity.internalServerError().body(result);
+        }
+    }
 }

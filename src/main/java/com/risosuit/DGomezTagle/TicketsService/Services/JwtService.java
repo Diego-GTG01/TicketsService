@@ -10,15 +10,16 @@ import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.time.LocalDate;
 
 @Service
 public class JwtService {
 
-    private static final String SECRET =
-            "MiClaveSuperSecretaParaGenerarTokensJWT123456";
+    private static final String SECRET
+            = "MiClaveSuperSecretaParaGenerarTokensJWT123456";
 
-    private final Key key =
-            new SecretKeySpec(
+    private final Key key
+            = new SecretKeySpec(
                     SECRET.getBytes(),
                     SignatureAlgorithm.HS256.getJcaName());
 
@@ -30,7 +31,7 @@ public class JwtService {
                 .expiration(
                         new Date(
                                 System.currentTimeMillis()
-                                        + 86400000))
+                                + 86400000))
                 .signWith(key)
                 .compact();
     }
@@ -43,8 +44,12 @@ public class JwtService {
     public boolean isTokenValid(String token) {
 
         try {
-            getClaims(token);
-            return true;
+            Claims claims = getClaims(token);
+            if (claims.getExpiration().before(new Date())) {
+                return true;
+            }
+            return false;
+
         } catch (Exception ex) {
             return false;
         }
