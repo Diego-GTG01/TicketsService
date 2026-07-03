@@ -208,7 +208,7 @@ public class VerificacionTokenDAOImplementation implements IVerificacionToken {
     @Transactional
     @Override
     public Result<VerificacionToken> verifyTokenRecovery(VerificacionToken token) {
-        Result<VerificacionToken> result = new Result<>();
+            Result<VerificacionToken> result = new Result<>();
         try {
             if (token == null || token.getToken() == null) {
                 result.correct = false;
