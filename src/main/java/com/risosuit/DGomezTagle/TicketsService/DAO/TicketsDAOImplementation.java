@@ -13,6 +13,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.DTO.UsuarioDTO;
 import com.risosuit.DGomezTagle.TicketsService.JPA.EstadoTicket;
+import com.risosuit.DGomezTagle.TicketsService.JPA.Historial;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Prioridad;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Rol;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Ticket;
@@ -257,7 +258,17 @@ public class TicketsDAOImplementation implements ITicket {
 
             Prioridad prioridad = entityManager.find(Prioridad.class, idPrioridad);
 
+            Historial historial = new Historial();
+            historial.setDescripcionCambio("Cambio Prioridad: "
+                    + ticket.getPrioridad().getNombre() + " por: " + prioridad.getNombre());
+            historial.setEstadoActual(ticket.getEstado());
+            historial.setEstadoAnterior(ticket.getEstado());
+            historial.setFechaActualizacion(new Date());
+            historial.setUsuario(ticket.getUsuarioSolicitante());
             ticket.setPrioridad(prioridad);
+            ticket.setFechaActualizacion(new Date());
+            ticket.getHistorial().add(historial);
+            historial.setTicket(ticket);
 
             entityManager.merge(ticket);
 
