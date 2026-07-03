@@ -5,12 +5,7 @@ import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.JPA.VerificacionToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/token")
@@ -20,44 +15,34 @@ public class VerificarTokenRestController {
     private VerificacionTokenDAOImplementation tokenDAO;
 
     @GetMapping
-    public ResponseEntity<Result<VerificacionToken>> verificarToken(
-            @RequestParam("token") String token) {
-        Result<VerificacionToken> result = new Result<VerificacionToken>();
+    public ResponseEntity<Result<VerificacionToken>> verificarToken(@RequestParam String token) {
 
-        try {
-            result = tokenDAO.verifyToken(token);
-            if (result.correct) {
-                return ResponseEntity.ok().body(result);
-            } else {
-                return ResponseEntity.badRequest().body(result);
-            }
+        Result<VerificacionToken> result = tokenDAO.verifyToken(token);
 
-        } catch (Exception e) {
-            result.correct = false;
-            result.message = e.getLocalizedMessage();
-            result.ex = e;
-            return ResponseEntity.internalServerError().body(result);
-        }
+        return result.correct
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.badRequest().body(result);
     }
 
     @PostMapping
-    public ResponseEntity<Result<VerificacionToken>> crearToken(@RequestBody VerificacionToken token) {
-        Result<VerificacionToken> result = new Result<VerificacionToken>();
+    public ResponseEntity<Result<VerificacionToken>> crearTokenValidacion(@RequestBody VerificacionToken token) {
 
-        try {
-            result = tokenDAO.addToken(token);
-            if (result.correct) {
-                return ResponseEntity.ok().body(result);
-            } else {
-                return ResponseEntity.badRequest().body(result);
-            }
+        Result<VerificacionToken> result = tokenDAO.addToken(token);
 
-        } catch (Exception e) {
-            result.correct = false;
-            result.message = e.getLocalizedMessage();
-            result.ex = e;
-            return ResponseEntity.internalServerError().body(result);
-        }
+        return result.correct
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.badRequest().body(result);
+    }
+    
+    @PostMapping("/recovery")
+    public ResponseEntity<Result<VerificacionToken>> crearTokenRecuperacion(@RequestBody VerificacionToken token) {
+        
+
+        Result<VerificacionToken> result = tokenDAO.verifyTokenRecovery(token);
+
+        return result.correct
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.badRequest().body(result);
     }
 
 }

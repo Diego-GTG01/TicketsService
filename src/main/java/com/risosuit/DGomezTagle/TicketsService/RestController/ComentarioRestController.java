@@ -2,18 +2,12 @@ package com.risosuit.DGomezTagle.TicketsService.RestController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.risosuit.DGomezTagle.TicketsService.DAO.ComentarioDAOImplementation;
 import com.risosuit.DGomezTagle.TicketsService.DAO.HistorialDAOImplementation;
 import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Comentario;
-import com.risosuit.DGomezTagle.TicketsService.JPA.Historial;
 
 @RestController
 @RequestMapping("Comentario")
@@ -25,45 +19,22 @@ public class ComentarioRestController {
     private HistorialDAOImplementation historialDAO;
 
     @GetMapping
-    public ResponseEntity<Result<Comentario>> getAll(@RequestParam("idTicket") long idTicket) {
-        Result<Comentario> result = new Result<Comentario>();
-        try {
-            result = comentarioDAO.getComentarioByIdTicket(idTicket);
-            if (result.correct) {
-                return ResponseEntity.ok().body(result);
+    public ResponseEntity<Result<Comentario>> getAll(@RequestParam long idTicket) {
 
-            } else {
-                return ResponseEntity.badRequest().body(result);
-            }
-        } catch (Exception ex) {
-            result.correct = false;
-            result.message = ex.getLocalizedMessage();
-            result.ex = ex;
-            return ResponseEntity.internalServerError().body(result);
-        }
+        Result<Comentario> result = comentarioDAO.getComentarioByIdTicket(idTicket);
 
+        return result.correct
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.badRequest().body(result);
     }
 
     @PostMapping
-    public ResponseEntity<Result<Comentario>> addComentario(@RequestBody Comentario Comentario) {
-        Result<Comentario> result = new Result<Comentario>();
+    public ResponseEntity<Result<Comentario>> addComentario(@RequestBody Comentario comentario) {
 
-        try {
-            result = comentarioDAO.addComentario(Comentario);
-            if (result.correct) {
+        Result<Comentario> result = comentarioDAO.addComentario(comentario);
 
-                return ResponseEntity.ok().body(result);
-            } else {
-
-                return ResponseEntity.badRequest().body(result);
-            }
-        } catch (Exception ex) {
-            result.correct = false;
-            result.message = ex.getLocalizedMessage();
-            result.ex = ex;
-            return ResponseEntity.internalServerError().body(result);
-        }
-
+        return result.correct
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.badRequest().body(result);
     }
-
 }

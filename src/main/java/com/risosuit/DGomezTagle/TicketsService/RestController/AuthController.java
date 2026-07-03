@@ -9,10 +9,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import com.risosuit.DGomezTagle.TicketsService.DAO.UsuarioDAOImplementation;
+import com.risosuit.DGomezTagle.TicketsService.DAO.VerificacionTokenDAOImplementation;
 import com.risosuit.DGomezTagle.TicketsService.DTO.LoginRequest;
 import com.risosuit.DGomezTagle.TicketsService.DTO.LoginResponse;
 import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Usuario;
+import com.risosuit.DGomezTagle.TicketsService.JPA.VerificacionToken;
 import com.risosuit.DGomezTagle.TicketsService.Services.JwtService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -30,6 +32,9 @@ public class AuthController {
 
     @Autowired
     private UsuarioDAOImplementation usuarioDAO;
+    
+    @Autowired
+    private VerificacionTokenDAOImplementation verificacionTokenDAO;
 
     @PostMapping("/login")
     public ResponseEntity<Result<LoginResponse>> login(@RequestBody LoginRequest request) {
@@ -69,10 +74,28 @@ public class AuthController {
             }
 
         } catch (DisabledException ex) {
-            result.correct = false;
-            result.message = "Esta cuenta se encuentra deshabilitada";
-            return ResponseEntity.status(403).body(result);
 
+            Result<Usuario> usuarioResult = usuarioDAO.getByUsername(request.getUsername());
+
+            if (usuarioResult.correct && usuarioResult.object != null) {
+
+                Usuario usuario = (Usuario) usuarioResult.object;
+
+                VerificacionToken verificacionToken = new VerificacionToken();
+                verificacionToken.setUsuarioToken(usuario);
+                
+
+                verificacionTokenDAO.addToken(verificacionToken);
+
+                result.correct = false;
+                result.message = "La cuenta se encuentra deshabilitada. Se envió un correo de verificación. ";
+            } else {
+
+                result.correct = false;
+                result.message = "La cuenta se encuentra deshabilitada.";
+            }
+
+            return ResponseEntity.status(403).body(result);
         } catch (BadCredentialsException ex) {
             result.correct = false;
             result.message = "Contraseña incorrecta o usuario no registrado";
@@ -92,11 +115,13 @@ public class AuthController {
     }
 
     @GetMapping("/verify")
-        public ResponseEntity<Result> verificarToken(@RequestParam("token") String token) {
+    public ResponseEntity<Result> verificarToken(@RequestParam("token") String token,
+            @RequestParam("username") String username
+    ) {
         Result result = new Result();
 
         try {
-            result.correct = jwtService.isTokenValid(token);
+            result.correct = jwtService.isTokenValid(token, username);
             if (result.correct) {
                 result.message = "Token Valido";
                 return ResponseEntity.ok().body(result);
@@ -111,4 +136,6 @@ public class AuthController {
             return ResponseEntity.internalServerError().body(result);
         }
     }
+    
+    
 }

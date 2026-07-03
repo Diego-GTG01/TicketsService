@@ -27,6 +27,8 @@ public class VerificacionToken {
     private Usuario usuarioToken;
     @Column(name = "fechaexpiracion")
     private LocalDateTime fechaExpiracion;
+    @Column(name = "tipo")
+    private long tipo;
 
     public long getIdToken() {
         return idToken;
@@ -58,6 +60,14 @@ public class VerificacionToken {
 
     public void setFechaExpiracion(LocalDateTime fechaExpiracion) {
         this.fechaExpiracion = fechaExpiracion;
+    }
+
+    public long getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(long tipo) {
+        this.tipo = tipo;
     }
 
 }

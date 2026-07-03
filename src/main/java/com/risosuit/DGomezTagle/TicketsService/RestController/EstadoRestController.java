@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.risosuit.DGomezTagle.TicketsService.DAO.EstadoDAOImplementation;
-import com.risosuit.DGomezTagle.TicketsService.DAO.PrioridadDAOImplementation;
 import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
 import com.risosuit.DGomezTagle.TicketsService.JPA.EstadoTicket;
-import com.risosuit.DGomezTagle.TicketsService.JPA.Prioridad;
 
 @RestController
 @RequestMapping("Estado")
@@ -21,22 +19,12 @@ public class EstadoRestController {
 
     @GetMapping
     public ResponseEntity<Result<EstadoTicket>> getAll() {
-        Result<EstadoTicket> result = new Result<EstadoTicket>();
-        try {
-            result = estadoDAO.getAll();
-            if (result.correct) {
-                return ResponseEntity.ok().body(result);
 
-            } else {
-                return ResponseEntity.badRequest().body(result);
-            }
-        } catch (Exception ex) {
-            result.correct = false;
-            result.message = ex.getLocalizedMessage();
-            result.ex = ex;
-            return ResponseEntity.internalServerError().body(result);
-        }
+        Result<EstadoTicket> result = estadoDAO.getAll();
 
+        return result.correct
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.badRequest().body(result);
     }
 
 }

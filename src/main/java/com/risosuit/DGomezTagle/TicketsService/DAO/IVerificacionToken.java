@@ -9,7 +9,10 @@ public interface IVerificacionToken {
     
     Result<VerificacionToken> addToken(VerificacionToken token);
     Result<VerificacionToken> verifyToken(String token);
+    Result<VerificacionToken> verifyTokenRecovery(VerificacionToken token);
+    
     Result<VerificacionToken> deleteToken(VerificacionToken token);
+    
     
     
     

@@ -1,21 +1,12 @@
 package com.risosuit.DGomezTagle.TicketsService.RestController;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.risosuit.DGomezTagle.TicketsService.DAO.HistorialDAOImplementation;
 import com.risosuit.DGomezTagle.TicketsService.DTO.Result;
-import com.risosuit.DGomezTagle.TicketsService.JPA.EstadoTicket;
 import com.risosuit.DGomezTagle.TicketsService.JPA.Historial;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @RequestMapping("Historial")
@@ -24,46 +15,24 @@ public class HistorialRestController {
     @Autowired
     private HistorialDAOImplementation historialDAO;
 
-    @GetMapping()
-    public ResponseEntity<Result<Historial>> getHistorialByIdTicket(@RequestParam("idTicket") int idTicket) {
-        Result<Historial> result = new Result<Historial>();
-        try {
-            result = historialDAO.getHistorialByIdTicket(idTicket);
-            if (result.correct) {
-                return ResponseEntity.ok().body(result);
+    @GetMapping
+    public ResponseEntity<Result<Historial>> getHistorialByIdTicket(@RequestParam int idTicket) {
 
-            } else {
-                return ResponseEntity.badRequest().body(result);
-            }
-        } catch (Exception ex) {
-            result.correct = false;
-            result.message = ex.getLocalizedMessage();
-            result.ex = ex;
-            return ResponseEntity.internalServerError().body(result);
-        }
+        Result<Historial> result = historialDAO.getHistorialByIdTicket(idTicket);
 
+        return result.correct
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.badRequest().body(result);
     }
 
     @PostMapping
     public ResponseEntity<Result<Historial>> addHistorial(@RequestBody Historial historial) {
-        Result<Historial> result = new Result<Historial>();
 
-        try {
-            result = historialDAO.updateEstadoTicket(historial);
-            if (result.correct) {
+        Result<Historial> result = historialDAO.updateEstadoTicket(historial);
 
-                return ResponseEntity.ok().body(result);
-            } else {
-                
-            return ResponseEntity.badRequest().body (result);
-            }
-        } catch (Exception ex) {
-            result.correct = false;
-            result.message = ex.getLocalizedMessage();
-            result.ex = ex;
-            return ResponseEntity.internalServerError().body(result);
-        }
-
+        return result.correct
+                ? ResponseEntity.ok(result)
+                : ResponseEntity.badRequest().body(result);
     }
 
 }
